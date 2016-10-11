@@ -1,25 +1,3 @@
-<style>
-h1{
-    color:#263238;
-}
-h2{
-    color:#37474F;
-}
-h3{
-    color:#475b66;
-}
-ul{
-    padding:2%;
-}
-
-strong>em,em>strong {
-    font-style:normal;
-    font-weight:normal;
-    text-decoration:underline;
-}
-
-</style>
-
 # How to Setup the English Assessment Template
 ## Part 1: Setting Up the Response Form
 ### Step 1.) Create a new Folder
