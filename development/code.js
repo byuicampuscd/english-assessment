@@ -1,10 +1,37 @@
+/* global
+PropertiesService
+SpreadsheetApp
+Logger
+HtmlService
+MailApp
+*/
+
+/* exported
+pullDataFromDump
+runTest
+resetIndex
+launchSideBar
+onOpen
+sendAll
+sortByParameter
+sortPropertybyRows
+alert
+fillVariables
+setCan
+getDataFromCol
+getCan
+process
+getAverageRank
+runMe
+fail
+*/
 /**
  * Takes the raw form input and converts it into the grading format
  */
 function pullDataFromDump() {
     //finds the last row that we pulled data from.
     //this data is stored into the application storage
-    var last = (parseInt(PropertiesService.getDocumentProperties().getProperty("last")) || 1);
+    var last = parseInt(PropertiesService.getDocumentProperties().getProperty("last"), 10) || 1;
     //grabs the "dump" spreadsheet
     var dump = SpreadsheetApp.getActive().getSheetByName("dump");
 
@@ -15,12 +42,12 @@ function pullDataFromDump() {
     var lobby = SpreadsheetApp.getActive().getSheetByName("lobby");
     // the question being asked by the teacher
     var question = dump.getRange("G1").getValue();
-    //makes sure the question in the spreadsheet heading matches the spreadsheet in the form 
+    //makes sure the question in the spreadsheet heading matches the spreadsheet in the form
     lobby.getRange("G1").setValue(question);
 
     //takes the new data and then moves it to the lobby
-    var dataRange = dump.getRange(last + 1, 1, (dump.getLastRow()) - last, dump.getLastColumn());
-    var data = (dataRange.getValues());
+    var dataRange = dump.getRange(last + 1, 1, dump.getLastRow() - last, dump.getLastColumn());
+    var data = dataRange.getValues();
     lobby.getRange(lobby.getLastRow() + 1, 1, data.length, data[0].length).setValues(data);
 
     //saves last row into the application storage
@@ -94,10 +121,10 @@ function sendAll() {
         if (all[i][10] == "" && all[i][8] != "") {
             // sets up the email to the student
             var email = {
-                    to: all[i][5],
-                    subject: all[i][3] + ": " + all[i][4] + " Response Feedback",
-                    htmlBody: "<h3>Question:</h3>" + question + "<br><br><h3>Your Response:</h3>" + all[i][6] + "<br><br><h3>Teacher's Response:</h3>" + all[i][8]
-                }
+                to: all[i][5],
+                subject: all[i][3] + ": " + all[i][4] + " Response Feedback",
+                htmlBody: "<h3>Question:</h3>" + question + "<br><br><h3>Your Response:</h3>" + all[i][6] + "<br><br><h3>Teacher's Response:</h3>" + all[i][8]
+            };
                 //sends the email to the student
             MailApp.sendEmail(email);
             //flags email as sent
@@ -117,7 +144,7 @@ function sendAll() {
         alert("There were no new responses to send.");
     else
     //alerts the user that messages were sent
-        alert((amount == 1) ? "Your message has been sent!" : "Your messages have been sent");
+        alert(amount == 1 ? "Your message has been sent!" : "Your messages have been sent");
     //updates lobby data to reflect the changes in flags
     lobby.getRange(2, 1, lobby.getLastRow(), lobby.getLastColumn()).setValues(all);
 
@@ -127,7 +154,7 @@ function sendAll() {
  * Returns lobby data that matches all of the provided criteria
  *   @param {string} day - Filters resonses for specified day(s). Multiple day filters are applied when the string contains multiple days separated by commas. Ex: "Day 1,Day 2,Day 3"
  *   @param {string} courses - Filters resonses for the specified class(es). Multiple class filters are applied when the string contains multiple classes separated by commas. Ex: "SAN 101,TST 210,PLY 315"
- *   @param {string} stud - Filters resonses for the specified student(s). Multiple student filters are applied when the string contains multiple names separated by commas. Ex: "John Doe , Derek Zoolander, Paul Rice" If a full name is specified, it will filter each result by the full name. If only one name if provided, it will filter results that contain the specified name. Ex: the fiter "Zoolander" would accept the names: Derek Zoolander, Zoolander, Zoolander Derek 
+ *   @param {string} stud - Filters resonses for the specified student(s). Multiple student filters are applied when the string contains multiple names separated by commas. Ex: "John Doe , Derek Zoolander, Paul Rice" If a full name is specified, it will filter each result by the full name. If only one name if provided, it will filter results that contain the specified name. Ex: the fiter "Zoolander" would accept the names: Derek Zoolander, Zoolander, Zoolander Derek
  */
 function sortByParameter(day, courses, stud) {
 
@@ -137,7 +164,7 @@ function sortByParameter(day, courses, stud) {
     var all = lobby.getRange(2, 1, lobby.getLastRow(), lobby.getLastColumn()).getValues();
 
     //filters data by the day(s) specified. If no day is specified, all data is passed through.
-    var c = (day != "") ? (day.indexOf(",") < 0) ? sortPropertybyRows(all, 5, day) : sortPropertybyRows(all, 5, day.split(",")) : all;
+    var c = day != "" ? day.indexOf(",") < 0 ? sortPropertybyRows(all, 5, day) : sortPropertybyRows(all, 5, day.split(",")) : all;
 
 
     if (courses) {
@@ -172,17 +199,14 @@ function sortByParameter(day, courses, stud) {
 
 /**
  * Filters out rows based off the specified property and value
- * @param {Object[][]} all - The spreadsheet data array to filter.
+ * @param {Object[]} all - The spreadsheet data array to filter.
  * @param {number} property - The collumn in the spreadsheet to filter the results by.
  * @param {string[]} value - value(s) to filter properties
  * @param {boolean} name - When ture, it runs the custom filter method for names.
+ * @returns {Object[]} Returns the filtered data.
  */
 function sortPropertybyRows(all, property, value, name) {
-    //grabs the lobby
-    var lobby = SpreadsheetApp.getActive().getSheetByName("lobby");
     var properties = [];
-
-
     // This should be replaced by a filter function in the future
     for (var i in all) {
         if (typeof value == "string") {
@@ -192,11 +216,12 @@ function sortPropertybyRows(all, property, value, name) {
                 properties.push(all[i]);
             }
         } else if (value.constructor === Array) {
+            var j;
             // mutiple values to filter by
             if (name) {
                 // filters by first and or last name. Should be replaced by REGEX in the future
-                Logger.log("NAME GAME!")
-                for (var j in value) {
+                Logger.log("NAME GAME!");
+                for (j in value) {
                     // splits name into segments
                     var parts = value[j].trim().split(" ");
                     //checks if the first name matches
@@ -210,7 +235,7 @@ function sortPropertybyRows(all, property, value, name) {
                                 // this is awkward
                             }
                         } else {
-                            //it matches! 
+                            //it matches!
                             properties.push(all[i]);
                         }
                     } else {
@@ -227,7 +252,7 @@ function sortPropertybyRows(all, property, value, name) {
                 // don't check for name
                 Logger.log("So this is how you want it?");
                 //got through all the values and if a match is found add it to the results
-                for (var j in value) {
+                for (j in value) {
                     if (all[i][property - 1].trim().toLowerCase() == value[j].trim().toLowerCase()) {
                         properties.push(all[i]);
                     }
@@ -235,7 +260,7 @@ function sortPropertybyRows(all, property, value, name) {
             }
         } else {
             //Looks like we can't filter by this data type!
-            Logger.log("IMPOSTER!")
+            Logger.log("IMPOSTER!");
         }
     }
 
@@ -296,10 +321,10 @@ function setCan(day, data, sig) {
 
                 if (values[i][feedback - 1] != "")
                 //fill in the values if there is no response
-                    values[i][feedback - 1] = values[i][feedback - 1].replace(new RegExp("(" + sig + ")", "g"), "") + "\n" + data["can" + (spl[q])] + "\n\n" + sig;
+                    values[i][feedback - 1] = values[i][feedback - 1].replace(new RegExp("(" + sig + ")", "g"), "") + "\n" + data["can" + spl[q]] + "\n\n" + sig;
                 else
                 // append the values if there is a resonse
-                    values[i][feedback - 1] = data["can" + (spl[q])] + "\n\n" + sig;
+                    values[i][feedback - 1] = data["can" + spl[q]] + "\n\n" + sig;
             }
             //empy the feedbacl collumn
             values[i][feedback] = "";
@@ -319,7 +344,7 @@ function setCan(day, data, sig) {
     var lobbyData = lobby.getRange(2, 1, lobby.getLastRow() - 1, lobby.getLastColumn()).getValues();
 
     //copies modified data to the lobby
-    lobby.getRange(2, 1, lobby.getLastRow() - 1, lobby.getLastColumn()).setValues(lobbyData)
+    lobby.getRange(2, 1, lobby.getLastRow() - 1, lobby.getLastColumn()).setValues(lobbyData);
 
 }
 
@@ -327,7 +352,7 @@ function setCan(day, data, sig) {
  * Makes an array of data from the specified column
  * @param {number} col - The spreadsheet collumn to get the array from.
  * @param {boolean} name - When true, special formatting will be applied for names.
- * @returns {Object[]} Array of collumns content. 
+ * @returns {Object[]} Array of collumns content.
  */
 function getDataFromCol(col, name) {
     var item = [];
@@ -337,7 +362,7 @@ function getDataFromCol(col, name) {
     //flatens the array and cleans the data
     for (var i in data) {
         var current = data[i][0].trim();
-        current += (name) ? " " + data[i][1].trim() : "";
+        current += name ? " " + data[i][1].trim() : "";
         if (item.indexOf(current) < 0)
             item.push(current);
     }
@@ -355,19 +380,20 @@ function getDataFromCol(col, name) {
  * @returns {Object} The canned repsonses for the specified day.
  */
 function getCan(day) {
-    var data = (PropertiesService.getDocumentProperties().getProperty(day) || {
+    var data = PropertiesService.getDocumentProperties().getProperty(day) || {
         can1: "",
         can2: "",
         can3: "",
         can4: "",
         can5: ""
-    });
+    };
     Logger.log(data);
     return data;
 }
 
 /**
  * Debugging Function
+ * @param {Object} object - The event object on an appscript trigger.
  */
 function process(object) {
     Logger.log(object.value, "I was Called!");
@@ -385,7 +411,7 @@ function getAverageRank() {
     var lobby = sheet.getRange(2, 9, sheet.getLastRow() - 1, 1).getValues();
     //grabs the rating from each row
     lobby = lobby.map(function (e) {
-        return parseInt(e[0].match(/\d+/g) || "-1");
+        return parseInt(e[0].match(/\d+/g) || "-1", 10);
     });
     //filters out the 0 items
     lobby = lobby.filter(function (item) {
@@ -402,7 +428,7 @@ function getAverageRank() {
     sheet = SpreadsheetApp.getActive().getSheetByName("View Response");
     var filtered = sheet.getRange(2, 9, sheet.getLastRow() - 1, 1).getValues();
     filtered = filtered.map(function (e) {
-        return parseInt(e[0].match(/\d+/g));
+        return parseInt(e[0].match(/\d+/g), 10);
     });
 
     length = filtered.length;
@@ -412,15 +438,16 @@ function getAverageRank() {
 
 
     // returns averages for overall and filtered ranks
-    return ({
+    return {
         overall: lobby,
         filtered: filtered
-    });
+    };
 
 }
 
 /**
  * Another Debugging Function
+ * @returns {string} Returns the debug string running.
  */
 function runMe() {
     Logger.log("run");

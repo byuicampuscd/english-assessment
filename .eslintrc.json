@@ -1,0 +1,37 @@
+{
+    "env": {
+        "browser": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        "indent": [
+            "error",
+            4
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-floating-decimal":2,
+        "no-eval":2,
+        "no-extra-parens":2,
+        "no-unused-vars": 2,
+        "no-console": 2,
+        "radix": 2,
+        "wrap-iife":2,
+        "strict": 2,
+        "array-bracket-spacing":2,
+        "block-spacing":2,
+        "brace-style":["error", "1tbs", { "allowSingleLine": true }],
+        "comma-dangle": 2,
+        "comma-spacing": ["error", { "before": false, "after": true }],
+        "comma-style": ["error", "last"],
+        "no-multiple-empty-lines": "error",
+        "no-trailing-spaces": "error",
+        "no-unneeded-ternary": "error",
+        "space-in-parens": ["error", "never"],
+        "valid-jsdoc": ["error",{"requireReturn":false}],
+        "strict":["error","never"]
+        
+    }
+}

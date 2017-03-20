@@ -23,7 +23,7 @@
 <dt><a href="#sortByParameter">sortByParameter(day, courses, stud)</a></dt>
 <dd><p>Returns lobby data that matches all of the provided criteria</p>
 </dd>
-<dt><a href="#sortPropertybyRows">sortPropertybyRows(all, property, value, name)</a></dt>
+<dt><a href="#sortPropertybyRows">sortPropertybyRows(all, property, value, name)</a> ⇒ <code>Array.&lt;Object&gt;</code></dt>
 <dd><p>Filters out rows based off the specified property and value</p>
 </dd>
 <dt><a href="#alert">alert(message)</a></dt>
@@ -41,13 +41,13 @@
 <dt><a href="#getCan">getCan(day)</a> ⇒ <code>Object</code></dt>
 <dd><p>Gets canned responses from the application data</p>
 </dd>
-<dt><a href="#process">process()</a></dt>
+<dt><a href="#process">process(object)</a></dt>
 <dd><p>Debugging Function</p>
 </dd>
 <dt><a href="#getAverageRank">getAverageRank()</a> ⇒ <code>Object</code></dt>
 <dd><p>Calculates the Average Student Rating of the Teacher</p>
 </dd>
-<dt><a href="#runMe">runMe()</a></dt>
+<dt><a href="#runMe">runMe()</a> ⇒ <code>string</code></dt>
 <dd><p>Another Debugging Function</p>
 </dd>
 <dt><a href="#fail">fail()</a></dt>
@@ -106,14 +106,15 @@ Returns lobby data that matches all of the provided criteria
 
 <a name="sortPropertybyRows"></a>
 
-## sortPropertybyRows(all, property, value, name)
+## sortPropertybyRows(all, property, value, name) ⇒ <code>Array.&lt;Object&gt;</code>
 Filters out rows based off the specified property and value
 
 **Kind**: global function  
+**Returns**: <code>Array.&lt;Object&gt;</code> - Returns the filtered data.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| all | <code>Array.&lt;Array.&lt;Object&gt;&gt;</code> | The spreadsheet data array to filter. |
+| all | <code>Array.&lt;Object&gt;</code> | The spreadsheet data array to filter. |
 | property | <code>number</code> | The collumn in the spreadsheet to filter the results by. |
 | value | <code>Array.&lt;string&gt;</code> | value(s) to filter properties |
 | name | <code>boolean</code> | When ture, it runs the custom filter method for names. |
@@ -182,10 +183,15 @@ Gets canned responses from the application data
 
 <a name="process"></a>
 
-## process()
+## process(object)
 Debugging Function
 
 **Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| object | <code>Object</code> | The event object on an appscript trigger. |
+
 <a name="getAverageRank"></a>
 
 ## getAverageRank() ⇒ <code>Object</code>
@@ -201,10 +207,11 @@ Gets spreadsheet data
 **Kind**: inner property of <code>[getAverageRank](#getAverageRank)</code>  
 <a name="runMe"></a>
 
-## runMe()
+## runMe() ⇒ <code>string</code>
 Another Debugging Function
 
 **Kind**: global function  
+**Returns**: <code>string</code> - Returns the debug string running.  
 <a name="fail"></a>
 
 ## fail()
