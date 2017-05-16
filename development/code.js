@@ -433,6 +433,11 @@ function getAverageRank() {
 
     length = filtered.length;
     filtered = filtered.reduce(function (a, b) {
+        console.log(a, b);
+        if (a === 0){
+        length --;
+        return b;
+        }
         return a + b;
     }) / length;
 
