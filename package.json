@@ -10,12 +10,12 @@
     "type": "git",
     "url": "https://www.github.com/byuitechops/english-assessment"
   },
-  "author": "Eric Julander",
-  "license": "MIT",
   "devDependencies": {
     "eslint": "^3.18.0",
     "eslint-config-standard": "^7.1.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^2.1.1"
-  }
+  },
+  "author": "Eric Julander",
+  "license": "MIT"
 }
