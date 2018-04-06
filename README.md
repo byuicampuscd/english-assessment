@@ -53,6 +53,9 @@
 <dt><a href="#fail">fail()</a></dt>
 <dd><p>Even Another Debugging Function</p>
 </dd>
+    <dt><a href="#archive">archive()</a></dt>
+<dd><p>Preserve data from older semesters and remove it from the Dump/Lobby</p>
+</dd>
 </dl>
 
 <a name="pullDataFromDump"></a>
@@ -218,3 +221,12 @@ Another Debugging Function
 Even Another Debugging Function
 
 **Kind**: global function  
+
+## archive()
+Removes the entries of any given semester from Lobby and Dump, then stores that data in it's own semester specific sheet.
+
+**Kind**: global function
+
+| Param | Type | Description |
+| --- | --- | --- |
+| semester | <code>string</code> | The name of the semester to archive. |
