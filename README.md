@@ -1,4 +1,39 @@
 # english-assessment
+
+## Making a Copy
+You need access to the google account with the source files. Ask Br. Kendall Grant for credentials.
+
+The "Response Viewer - Master Code" file is the script that contains, you guessed it, the master code for the tool. This is where you will make updates.
+
+To create a new instance of this tool, you can do a few things. The simplest thing to do is copy the existing sheet and link a NEW form to it. Find the sheet template in the "Template" directory of the Google Drive and make a new copy. Esnure that you have permission to access/edit the RVMC code. In the newly made templated sheet copy, test your linked form to ensure that responses show up as expected (in the dump tab).  
+
+In the "question links" tab, add the questions you want to use on the form in your course. You can use as many or as few as you like, though the default is 42. Do not touch column C of this sheet, it creates the links for you. Copy and paste the links directly into your course.
+
+Ensure that the id of the "Form Link" in the "question links" tab matches the form id of the linked form.
+
+## Making Changes
+
+If you are maintaining the code, you will need to keep some things in mind. When you need to add functionality to the student viewer, you need to add code in 3 places.
+
+1. In "Response Viewer - Master Code" you need to add the basic functionality of your script to "sidebar.html" this usually means grabbing your variables from the page then ussing "google.script.run.FUNCTIONNAME(PARAMS)" to call the code from "Code.gs"
+2. In "Code.gs" write the acutal code you will be using.
+3. In the Script Editor for your copy of the tool, add the new function following the format of all the others:
+
+``` JS
+// if you need data returned
+// technically you can just do it this way no matter what
+function funcName(params){
+    return RVMC.funcName(params);
+}
+// only if you do not need data returned
+function funcName(params){
+    RVMC.funcName(params);
+}
+
+```
+
+If you ever add a feature to RVMC, remember to add it to the script editor for your file ***AND*** the template file.
+
 ## Functions
 
 <dl>
