@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-    <script>
-       function sendAll(){
+
+    <head>
+        <base target="_top">
+        <script>
+            function sendAll(){
           google.script.run.sendAll();
        }
     </script>
-  </head>
-  <body>
-   <button onclick="sendAll()">Send All Responses</button><br>
-    <div>&nbsp</div>
-    <button onclick="sendSelect()">Send Individual Responses</button><br>
-    <div>&nbsp</div>
-    <input type="text" >
-  </body>
+    </head>
+
+    <body>
+        <button onclick="sendAll()">Send All Responses</button><br>
+        <div>&nbsp</div>
+        <button onclick="sendSelect()">Send Individual Responses</button><br>
+        <div>&nbsp</div>
+        <input type="text">
+    </body>
+
 </html>
-
-

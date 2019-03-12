@@ -125,7 +125,7 @@ function sendAll() {
                 subject: all[i][3] + ": " + all[i][4] + " Response Feedback",
                 htmlBody: "<h3>Question:</h3>" + question + "<br><br><h3>Your Response:</h3>" + all[i][6] + "<br><br><h3>Teacher's Response:</h3>" + all[i][8]
             };
-                //sends the email to the student
+            //sends the email to the student
             MailApp.sendEmail(email);
             //flags email as sent
             all[i][10] = "yes";
@@ -143,7 +143,7 @@ function sendAll() {
     if (!found)
         alert("There were no new responses to send.");
     else
-    //alerts the user that messages were sent
+        //alerts the user that messages were sent
         alert(amount == 1 ? "Your message has been sent!" : "Your messages have been sent");
     //updates lobby data to reflect the changes in flags
     lobby.getRange(2, 1, lobby.getLastRow(), lobby.getLastColumn()).setValues(all);
@@ -229,7 +229,7 @@ function sortPropertybyRows(all, property, value, name) {
                         if (parts.length > 1) {
                             // checks if last anem matches too
                             if (all[i][property].toLowerCase().trim() == parts[1].toLowerCase().trim())
-                            //if both match, add to results
+                                //if both match, add to results
                                 properties.push(all[i]);
                             else {
                                 // this is awkward
@@ -320,10 +320,10 @@ function setCan(day, data, sig) {
             for (var q in spl) {
 
                 if (values[i][feedback - 1] != "")
-                //fill in the values if there is no response
+                    //fill in the values if there is no response
                     values[i][feedback - 1] = values[i][feedback - 1].replace(new RegExp("(" + sig + ")", "g"), "") + "\n" + data["can" + spl[q]] + "\n\n" + sig;
                 else
-                // append the values if there is a resonse
+                    // append the values if there is a resonse
                     values[i][feedback - 1] = data["can" + spl[q]] + "\n\n" + sig;
             }
             //empy the feedbacl collumn
@@ -434,9 +434,9 @@ function getAverageRank() {
     length = filtered.length;
     filtered = filtered.reduce(function (a, b) {
         console.log(a, b);
-        if (a === 0){
-        length --;
-        return b;
+        if (a === 0) {
+            length--;
+            return b;
         }
         return a + b;
     }) / length;

@@ -1,354 +1,422 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <base target="_top">
-    <link rel="stylesheet" href="style.css">
-    <script>
-        var day = document.getElementById("day");
+    <head>
+        <base target="_top">
+        <link rel="stylesheet" href="style.css">
+        <script>
+            function fail() {
+                console.log("FAIL!!!");
+            }
 
-        function fail() {
-            console.log("FAIL!!!");
-        }
+            function process(data) {
+                var day = document.getElementById("day");
+                if (!day.value == "") google.script.run.addToCan(day.value, data.id, data.value);
+            }
 
-        function process(data) {
-            if (!day.value == "") google.script.run.addToCan(day.value, data.id, data.value);
-        }
+            function refresh() {
+                google.script.host.close();
+                window.setInterval(function () {
+                    google.script.run.launchSideBar();
+                }, 500);
+            }
 
-        function refresh() {
-            google.script.host.close();
-            window.setInterval(function () {
-                google.script.run.launchSideBar();
-            }, 500);
-        }
+            function getCannedResponses(day) {
+                console.log(day.value);
+                var data = google.script.run.withSuccessHandler(fillSheets).getCan(day.value);
+            }
 
-        function getCannedResponses(day) {
-            console.log(day.value);
-            if (day.value == "") return;
-            var data = google.script.run.withSuccessHandler(fillSheets).getCan(day.value);
-        }
+            function fillSheets(data) {
+                console.log(typeof data, data)
+                if (typeof data == "string") data = JSON.parse(data);
+                console.log(data);
+                for (var i in data) document.getElementById(i).value = data[i];
+            }
 
-        function fillSheets(data) {
-            console.log(typeof data, data)
-            if (typeof data == "string") data = JSON.parse(data);
-            console.log(data);
-            for (var i in data) document.getElementById(i).value = data[i];
-        }
+            function saveFeedback() {
+                var day = document.getElementById("day");
+                var cans = document.getElementsByClassName("can");
+                var can = {};
+                for (var i in cans) {
+                    console.log(cans[i]);
+                    if (cans[i].id != undefined) {
+                        can[cans[i].id] = cans[i].value;
+                        if (cans[i].value.trim() == "") {
 
-        function saveFeedback() {
-            var day = document.getElementById("day");
-            var cans = document.getElementsByClassName("can");
-            var can = {};
-            for (var i in cans) {
-                console.log(cans[i]);
-                if (cans[i].id != undefined) {
-                    can[cans[i].id] = cans[i].value;
-                    if (cans[i].value.trim() == "") {
-                        google.script.run.alert("Please fill out ALL canned responses before submitting the data.");
-                        return;
+                        }
                     }
                 }
+                //            console.log('CAN',can);
+                google.script.run.setCan(day.value, can, document.getElementById("sig").value);
             }
-            google.script.run.setCan(day.value, can);
-        }
 
-        function generateSpreadsheetReport() {
-            console.log("RUN!");
-            var day = document.getElementById("day");
-            if (!day.value) day.value = "";
-            var course = document.getElementById("courses");
-            var stud = document.getElementById("stud");
-            console.log(day.value, course.value, stud.value)
-            google.script.run.sortByParameter(day.value, course.value, stud.value);
-        }
-
-        function focus() {
-            console.log("Wasup");
-            var ls = document.getElementsByClassName("si");
-            for (var i in ls) {
-                ls[i].innerHTML = "";
+            function archive() {
+                /*TODO: WRITE ARCHIVING FUCNTION*/
+                var semester = document.querySelector("#semester");
+                google.script.run.archiveSemester(semester.value);
             }
+
+            function generateSpreadsheetReport() {
+                console.log("RUN!");
+                var day = document.getElementById("day");
+                if (!day.value) day.value = "";
+                var course = document.getElementById("courses");
+                var stud = document.getElementById("stud");
+                console.log(day.value, course.value, stud.value)
+                google.script.run.withSuccessHandler(displayAverage).sortByParameter(day.value || "", course.value ||
+                    "", stud.value || "");
+            }
+
+            function focus() {
+                console.log("Wasup");
+                var ls = document.getElementsByClassName("si");
+                for (var i in ls) {
+                    ls[i].innerHTML = "";
+                }
+            }
+
+            function displayAverage() {
+                google.script.run.withSuccessHandler(function (data) {
+                    console.log("Working", data)
+                    document.getElementById("averages").innerHTML = "Average: " + (Math.round(data.overall *
+                        100) / 100) + "<br> Selection Average: " + (Math.round(data.filtered * 100) / 100);
+                }).getAverageRank(5);
+            }
+
+            function oopsErr(e) {
+                console.error(e);
+            }
+
+        </script>
+    </head>
+    <style>
+        html {
+            max-width: 250px;
+            font-family: Arial, Helvetica, sans-serif
         }
-    </script>
-</head>
-<style>
-    html {
-        max-width: 250px;
-        font-family: Arial, Helvetica, sans-serif
-    }
-    
-    h1 {
-        font-size: 20px;
-        color: #263238;
-    }
-    
-    body {
-        max-width: 250px;
-        background-color: #ECEFF1;
-    }
-    
-    body > * {
-        margin: auto;
-    }
-    
-    input,
-    textarea {
-        margin-bottom: 4.5%;
-        font-size: 14px;
-    }
-    
-    textarea,
-    input {
-        width: 100%;
-        resize: none;
-        padding: 1.5%;
-    }
-    
-    .btn {
-        margin: 1.5%;
-        padding: 1.5%;
-        font-size: 15px;
-        width: 33%;
-        text-align: center;
-        border-radius: 5px;
-        background-color: #CFD8DC;
-        padding: 5%;
-        box-shadow: 2.5px 2.5px 5px #888888;
-        font-family: Arial, Helvetica, sans-serif
-    }
-    
-    .btn:hover {
-        background-color: #c4cdd1;
-        cursor: pointer;
-    }
-    
-    .panel {
-        display: flex;
-        justify-content: space-between;
-        padding: 2.5%;
-    }
-    
-    .target {
-        width: 250px;
-    }
-    
-    .target * {
-        max-width: 250px;
-        margin: 0;
-    }
-    
-    .target ul {}
-    
-    li:hover,
-    .selected {
-        background-color: #efefef;
-        cursor: pointer;
-        font-size: 18px;
-        padding: 2%;
-        font-weight: 200;
-    }
-    
-    .err {
-        font-size: 11px;
-        color: #6d6d6d;
-        text-align: center;
-        background-color: white;
-        width: 100%;
-    }
-    
-    .target ul {
-        list-style-type: none;
-        padding: 0;
-        width: 100%;
-        padding: 1.5%;
-        text-align: center;
-        margin: auto;
-        background-color: white;
-        box-shadow: 5px 5px 5px #888888;
-        overflow-y: auto;
-    }
-    
-    .target ul li {
-        padding: 1.5%;
-    }
-    
-    #back {
-        position: fixed;
-        width: 110%;
-        height: 110%;
-        margin-left: -10%;
-        margin-top: -.41%;
-        z-index: -10;
-        background-color: red;
-    }
-</style>
 
-<body>
-    <div id="back"></div>
-    <h1>Day</h1>
-    <!--<input id="day" onchange="getCannedResponses(this)" type="text" placeholder="Day(s)">-->
-    <div class="target" id="days"></div>
-    <h1>Courses</h1>
-    <div class="target" id="coursez"></div>
-    <h1>Filter</h1>
-    <div class="target" id="students"></div>
-    <div class="panel">
-        <div class="btn" onclick="generateSpreadsheetReport()">View Responses</div>
-        <div class="btn" onclick="saveFeedback()">Save Responses</div>
-    </div>
-    <h1>Canned Response 1</h1>
-    <textarea class="can" id="can1" placeholder="Canned Response 1" cols='30' rows='6'></textarea>
-    <h1>Canned Response 2</h1>
-    <textarea class="can" id="can2" placeholder="Canned Response 2" cols='30' rows='6'></textarea>
-    <h1>Canned Response 3</h1>
-    <textarea class="can" id="can3" placeholder="Canned Response 3" cols='30' rows='6'></textarea>
-    <h1>Canned Response 4</h1>
-    <textarea class="can" id="can4" placeholder="Canned Response 4" cols='30' rows='6'></textarea>
-    <h1>Canned Response 5</h1>
-    <textarea class="can" id="can5" placeholder="Canned Response 5" cols='30' rows='6'></textarea>
+        h1 {
+            font-size: 20px;
+            color: #263238;
+        }
 
-    <!-- dropdown menu script  -->
-    <script>
-        /**
-         * This creates a dropdown menus within a specified element.
-         * @param {Object[]} options - The array of items on the list.
-         * @param {string} parent - The id of the element to place the dropdown in.
-         * @param {string} id - The id to give the dropdown menu.
-         */
-        var DropDown = function DD(options, parent, id) {
-            this.options = options;
-            this.parent = parent;
-            this.id = id;
-            var section = document.createElement("div");
-            section.className = "si";
-            var list = document.createElement("ul");
-            document.onclick = function (e) {
+        body {
+            max-width: 250px;
+            background-color: #ECEFF1;
+        }
+
+        body>* {
+            margin: auto;
+
+        }
+
+        #averages {
+            font-family: monospace;
+            color: #606060;
+        }
+
+
+        input,
+        textarea {
+            margin-bottom: 4.5%;
+            font-size: 14px;
+
+        }
+
+        textarea,
+        input {
+            width: 100%;
+            resize: none;
+            padding: 1.5%;
+        }
+
+        .btn {
+            margin: 1.5%;
+            padding: 1.5%;
+            font-size: 15px;
+            width: 33%;
+            text-align: center;
+            border-radius: 5px;
+            background-color: #CFD8DC;
+            padding: 5%;
+            box-shadow: 2.5px 2.5px 5px #888888;
+            font-family: Arial, Helvetica, sans-serif
+        }
+
+        .btn:hover {
+            background-color: #c4cdd1;
+            cursor: pointer;
+        }
+
+        .panel {
+            display: flex;
+            justify-content: space-between;
+            padding: 2.5%;
+        }
+
+
+        .target {
+            width: 250px;
+
+        }
+
+        .target * {
+            max-width: 250px;
+            margin: 0;
+        }
+
+        .target ul {}
+
+        li:hover,
+        .selected {
+            background-color: #efefef;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 2%;
+            font-weight: 200;
+        }
+
+        .err {
+            font-size: 11px;
+            color: #6d6d6d;
+            text-align: center;
+            background-color: white;
+            width: 100%;
+        }
+
+        .target ul {
+
+            list-style-type: none;
+            padding: 0;
+            width: 100%;
+            padding: 1.5%;
+            text-align: center;
+            margin: auto;
+            background-color: white;
+            box-shadow: 5px 5px 5px #888888;
+            overflow-y: auto;
+        }
+
+        .target ul li {
+            padding: 1.5%;
+        }
+
+        #back {
+            position: fixed;
+            width: 110%;
+            height: 110%;
+            margin-left: -10%;
+            margin-top: -.41%;
+            z-index: -10;
+        }
+
+        #archive {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        #archive .btn {
+            margin-top: 1.5%;
+        }
+
+        #archive textarea {
+            margin-top: 1.5%;
+        }
+
+    </style>
+
+    <body>
+        <div id="back"></div>
+        <p id="averages">Average: 8.5 <br> Selection Average: 7.5</p>
+        <br>
+        <h1>Days</h1>
+        <!--<input id="day" onchange="getCannedResponses(this)" type="text" placeholder="Day(s)">-->
+        <div class="target" id="days"></div>
+        <h1>Courses</h1>
+        <div class="target" id="coursez"></div>
+        <h1>Students</h1>
+        <div class="target" id="students"></div>
+        <div class="panel">
+            <div class="btn" onclick="generateSpreadsheetReport()">View Responses</div>
+            <div class="btn" onclick="saveFeedback()">Save Responses</div>
+        </div>
+        <h1>Signature</h1>
+        <textarea id="sig" placeholder="ex: Brother Doe" cols='30' rows='3'></textarea>
+        <h1>Canned Response 1</h1>
+        <textarea class="can" id="can1" placeholder="Canned Response 1" cols='30' rows='6'></textarea>
+        <h1>Canned Response 2</h1>
+        <textarea class="can" id="can2" placeholder="Canned Response 2" cols='30' rows='6'></textarea>
+        <h1>Canned Response 3</h1>
+        <textarea class="can" id="can3" placeholder="Canned Response 3" cols='30' rows='6'></textarea>
+        <h1>Canned Response 4</h1>
+        <textarea class="can" id="can4" placeholder="Canned Response 4" cols='30' rows='6'></textarea>
+        <h1>Canned Response 5</h1>
+        <textarea class="can" id="can5" placeholder="Canned Response 5" cols='30' rows='6'></textarea>
+        <h1>Archive Old Entries</h1>
+        <div id="archive">
+            <textarea id="semester" style="width:40%;" placeholder="Fall 2017"></textarea>
+            <div class="btn" onclick="archive()">Archive.</div>
+        </div>
+        <!-- dropdown menu script  -->
+        <script>
+            /*
+             * This creates a dropdown menus within a specified element
+             * Parameters:
+             * options: the array of items on the list
+             * parent: the id of the element to place the dropdown in
+             * id: the id to give the dropdown menu
+             */
+            var DropDown = function DD(options, parent, id) {
+                this.options = options;
+                this.parent = parent;
+                this.id = id;
+                var section = document.createElement("div");
+                section.className = "si";
+                var list = document.createElement("ul");
+                document.onclick = function (e) {
                     section.innerHTML = "";
                 }
                 // nested to keep scope
-            function handle(e) {
-                var items = list.getElementsByTagName("li");
-                console.log("TRIGGER", e);
-                //console.log(options);
-                this.selected = 0;
-                if (e.key == "ArrowUp") {
-                    items[this.selected].className = "";
-                    this.selected--;
-                    if (this.selected < 0) this.selected = items.length - 1;
-                    items[this.selected].className = "selected";
-                } else if (e.key == "ArrowDown") {
-                    items[this.selected].className = "";
-                    this.selected++;
-                    if (this.selected >= items.length) this.selected = 0;
-                    items[this.selected].className = "selected";
-                } else if (e.key == "Enter") {
-                    console.log("NOOOOOoooo....")
-                    e.preventDefault();
+                function handle(e) {
+                    var items = list.getElementsByTagName("li");
+                    console.log("TRIGGER", e);
+                    //console.log(options);
+                    //var list = [];
+                    if (e.key == "Tab")
+                        focus();
+                    else
+                    if (e.key == "ArrowUp") {
+                        items[this.selected].className = "";
+                        this.selected--;
+                        if (this.selected < 0) this.selected = items.length - 1;
+                        items[this.selected].className = "selected";
+                        console.log("Goin Up!", items[this.selected], this.selected, items.length);
+                    } else if (e.key == "ArrowDown") {
+                        items[this.selected].className = "";
+                        this.selected++;
+                        if (this.selected >= items.length) this.selected = 0;
+                        items[this.selected].className = "selected";
 
-                    items[this.selected].className = "";
-                    textArea.focus();
+                        console.log("Goin Down!", items[this.selected], this.selected, items.length);
 
-                    var next = items[this.selected].innerText;
-                    var text = e.target.value.split(",");
-                    text[text.length - 1] = next;
-                    var fill = "";
-                    for (var a in text) {
-                        if (parseInt(a) < text.length - 1)
-                            fill += `${text[a].trim()}, `;
-                        else
-                            fill += text[a].trim();
-                    }
-                    e.target.value = fill;
-                    section.innerHTML = "";
-                    this.selected = 0;
-                } else {
-                    this.selected = 0;
-                    list.innerHTML = "";
-                    section.innerHTML = "";
-                    var found = false;
-                    var text = e.target.value.toLowerCase().split(",");
-                    for (var a in text) {
+                    } else if (e.key == "Enter") {
+                        console.log("NOOOOOoooo....")
+                        e.preventDefault();
+
+                        items[this.selected].className = "";
+                        textArea.focus();
+
+                        var next = items[this.selected].innerText;
+                        var text = e.target.value.split(",");
+                        text[text.length - 1] = next;
+                        var fill = "";
+                        for (var a in text) {
+                            if (parseInt(a) < text.length - 1)
+                                fill += `${text[a].trim()}, `;
+                            else
+                                fill += text[a].trim();
+                        }
+                        e.target.value = fill;
+                        section.innerHTML = "";
+                        this.selected = 0;
+                    } else {
+                        this.selected = 0;
                         list.innerHTML = "";
-                        found = false;
-                        for (var i in options) {
-                            var regex = new RegExp(text[a].trim(), "g");
-                            //console.log(options[i].match(regex), regex);
-                            if (options[i].toLowerCase().match(regex) != null) {
-                                found = true;
-                                var item = document.createElement("li");
-                                item.appendChild(document.createTextNode(options[i]));
-                                item.onclick = function (ev) {
+                        section.innerHTML = "";
+                        var found = false;
+                        var text = e.target.value.toLowerCase().split(",");
+                        for (var a in text) {
+                            list.innerHTML = "";
+                            found = false;
+                            for (var i in options) {
+                                var regex = new RegExp(text[a].trim(), "g");
+                                //console.log(options[i].match(regex), regex);
+                                if (options[i].toLowerCase().match(regex) != null) {
+                                    found = true;
+                                    var item = document.createElement("li");
+                                    item.appendChild(document.createTextNode(options[i]));
+                                    item.onclick = function (ev) {
                                         textArea.focus();
                                         var next = ev.target.textContent;
                                         var fill = "";
                                         text[a] = next;
-                                        for (var b in text) fill += (parseInt(b) < text.length - 1) ? text[b].trim().toLowerCase() + ", " : text[b].trim().toLowerCase();
+                                        for (var b in text) fill += (parseInt(b) < text.length - 1) ? text[b].trim()
+                                            .toLowerCase() + ", " : text[b].trim().toLowerCase();
                                         console.log(ev.target.textContent);
                                         e.target.value = fill;
                                         list.innerHTML = "";
                                         section.innerHTML = "";
                                     }
                                     //if ((text.indexOf(options[i].toLowerCase())) < 0) {
-                                list.appendChild(item);
-                                // console.log(list);
-                                //console.log(text.indexOf(options[i].toLowerCase()), options[i].toLowerCase(), text);
-                                //}
+                                    list.appendChild(item);
+                                    // console.log(list);
+                                    //console.log(text.indexOf(options[i].toLowerCase()), options[i].toLowerCase(), text);
+                                    //}
+                                }
+                                //console.log(options[i]);
                             }
-                            //console.log(options[i]);
+
                         }
-
+                        if (!found) {
+                            var text = document.createTextNode("No items foud!");
+                            var p = document.createElement("li");
+                            p.className = "err";
+                            p.appendChild(text);
+                            list.appendChild(p);
+                        }
+                        //console.log(list);
+                        section.appendChild(list);
+                        document.getElementById(parent).appendChild(section);
                     }
-                    if (!found) {
-                        var text = document.createTextNode("No items foud!");
-                        var p = document.createElement("li");
-                        p.className = "err";
-                        p.appendChild(text);
-                        list.appendChild(p);
+                }
+                var example_text = "";
+                var times = 0;
+                for (var i in options) {
+                    if (example_text.indexOf(options[i]) < 0) {
+                        example_text += options[i] + ", ";
+                        times++;
                     }
-                    //console.log(list);
-                    section.appendChild(list);
-                    document.getElementById(parent).appendChild(section);
+                    if (times > 2) break;
                 }
+                example_text += "etc.";
+                var textArea = document.createElement("textarea");
+                textArea.id = id;
+                textArea.onkeyup = handle;
+                textArea.onChange = focus;
+                textArea.placeholder = example_text;
+                document.getElementById(parent).appendChild(textArea);
             }
-            var example_text = "";
-            var times = 0;
-            for (var i in options) {
-                if (example_text.indexOf(options[i]) < 0) {
-                    example_text += options[i] + ", ";
-                    times++;
-                }
-                if (times > 2) break;
-            }
-            example_text += "etc.";
-            var textArea = document.createElement("textarea");
-            textArea.id = id;
-            textArea.onkeyup = handle;
-            textArea.placeholder = example_text;
-            document.getElementById(parent).appendChild(textArea);
-        }
 
 
-        //var d = new DropDown(["Dog","Cat","Fish","Turtle"],"target","pets");
-        google.script.run.withSuccessHandler((data) => {
-            new DropDown(data, "days", "day");
-        }).getDataFromCol(8);
-        google.script.run.withSuccessHandler((data) => {
-            new DropDown(data, "coursez", "courses");
-        }).getDataFromCol(4);
-        google.script.run.withSuccessHandler((data) => {
-            new DropDown(data, "students", "stud");
-        }).getDataFromCol(2, true);
-        document.getElementById("back").onclick = e => {
-            console.log("CLICK");
-            focus();
-        }
-        for (var i in document.getElementsByTagName("h1")) {
-            document.getElementsByTagName("h1")[i].onclick = e => {
-                console.log("This is a thinggy!");
+            //var d = new DropDown(["Dog","Cat","Fish","Turtle"],"target","pets");
+            google.script.run.withSuccessHandler((data) => {
+                new DropDown(data, "days", "day");
+            }).getDataFromCol(5);
+            google.script.run.withSuccessHandler((data) => {
+                new DropDown(data, "coursez", "courses");
+            }).getDataFromCol(4);
+            google.script.run.withSuccessHandler((data) => {
+                new DropDown(data, "students", "stud");
+            }).getDataFromCol(2, true);
+            document.getElementById("back").onclick = e => {
+                console.log("CLICK");
                 focus();
             }
-        }
-    </script>
-</body>
+            google.script.run.withSuccessHandler(function (data) {
+                console.log("Working", data)
+                document.getElementById("averages").innerHTML = "Average: " + (Math.round(data.overall * 100) /
+                    100) + "<br> Selection Average: " + (Math.round(data.filtered * 100) / 100);
+            }).getAverageRank(5);
+
+            for (var i in document.getElementsByTagName("h1")) {
+                document.getElementsByTagName("h1")[i].onclick = e => {
+                    console.log("This is a thinggy!");
+                    focus();
+                }
+            }
+
+        </script>
+    </body>
 
 </html>
